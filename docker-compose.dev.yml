@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # 数据库服务（开发环境）
+  db:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=blog
+      - POSTGRES_USER=blog
+      - POSTGRES_PASSWORD=blog123
+    volumes:
+      - postgres-data-dev:/var/lib/postgresql/data
+    networks:
+      - blog-network-dev
+
+  # Redis 服务（开发环境）
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data-dev:/data
+    networks:
+      - blog-network-dev
+
+networks:
+  blog-network-dev:
+    driver: bridge
+
+volumes:
+  postgres-data-dev:
+  redis-data-dev:

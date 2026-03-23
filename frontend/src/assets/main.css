@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply min-h-screen;
+  }
+
+  /* 自定义滚动条 */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-100 dark:bg-slate-800;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 dark:bg-slate-600 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400 dark:bg-slate-500;
+  }
+}
+
+@layer components {
+  /* 渐变按钮 */
+  .btn-primary {
+    @apply px-6 py-2.5 rounded-lg font-medium text-white transition-all duration-300
+           bg-gradient-to-r from-primary-500 to-primary-600
+           hover:from-primary-600 hover:to-primary-700
+           hover:shadow-lg hover:shadow-primary-500/30
+           active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-2.5 rounded-lg font-medium transition-all duration-300
+           border-2 border-slate-200 dark:border-slate-700
+           hover:border-primary-500 hover:text-primary-500
+           active:scale-95;
+  }
+
+  /* 卡片样式 */
+  .card {
+    @apply bg-white dark:bg-slate-800 rounded-2xl shadow-sm
+           border border-slate-100 dark:border-slate-700
+           transition-all duration-300;
+  }
+
+  .card-hover {
+    @apply card hover:shadow-xl hover:shadow-slate-200/50
+           dark:hover:shadow-slate-900/50 hover:-translate-y-1;
+  }
+
+  /* 输入框样式 */
+  .input {
+    @apply w-full px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700
+           bg-white dark:bg-slate-800
+           focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20
+           outline-none transition-all duration-200;
+  }
+
+  /* 渐变文字 */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-500 to-violet-500 bg-clip-text text-transparent;
+  }
+}
+
+/* Markdown 文章样式 */
+.prose-custom {
+  @apply text-slate-700 dark:text-slate-300 leading-relaxed;
+}
+
+.prose-custom h1,
+.prose-custom h2,
+.prose-custom h3,
+.prose-custom h4 {
+  @apply text-slate-900 dark:text-slate-100 font-bold mt-8 mb-4;
+}
+
+.prose-custom h1 {
+  @apply text-3xl;
+}
+
+.prose-custom h2 {
+  @apply text-2xl;
+}
+
+.prose-custom h3 {
+  @apply text-xl;
+}
+
+.prose-custom p {
+  @apply my-4;
+}
+
+.prose-custom a {
+  @apply text-primary-500 hover:text-primary-600 underline;
+}
+
+.prose-custom blockquote {
+  @apply border-l-4 border-primary-500 pl-4 my-4 italic text-slate-600 dark:text-slate-400;
+}
+
+.prose-custom code {
+  @apply bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded text-sm font-mono;
+}
+
+.prose-custom pre {
+  @apply bg-slate-900 text-slate-100 p-4 rounded-lg overflow-x-auto my-4;
+}
+
+.prose-custom pre code {
+  @apply bg-transparent p-0;
+}
+
+.prose-custom ul,
+.prose-custom ol {
+  @apply my-4 pl-6;
+}
+
+.prose-custom ul {
+  @apply list-disc;
+}
+
+.prose-custom ol {
+  @apply list-decimal;
+}
+
+.prose-custom li {
+  @apply my-2;
+}
+
+.prose-custom img {
+  @apply rounded-lg max-w-full h-auto my-6;
+}
+
+.prose-custom table {
+  @apply w-full border-collapse my-6;
+}
+
+.prose-custom th,
+.prose-custom td {
+  @apply border border-slate-200 dark:border-slate-700 px-4 py-2;
+}
+
+.prose-custom th {
+  @apply bg-slate-50 dark:bg-slate-800 font-semibold;
+}
