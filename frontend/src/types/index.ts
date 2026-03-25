@@ -84,6 +84,7 @@ export interface Comment {
   id: number
   content: string
   post_id: number
+  post_title: string | null
   user: User
   parent_id: number | null
   status: string

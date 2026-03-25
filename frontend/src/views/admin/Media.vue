@@ -61,7 +61,10 @@ function copyUrl(path: string) {
   <div>
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">媒体库</h1>
-      <label class="btn-primary cursor-pointer">
+      <label
+        class="px-5 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-medium transition-colors cursor-pointer"
+        :class="{ 'opacity-50 cursor-wait': uploading }"
+      >
         <span v-if="uploading">上传中...</span>
         <span v-else>上传文件</span>
         <input
@@ -79,15 +82,16 @@ function copyUrl(path: string) {
     </div>
 
     <div v-else-if="mediaList.length === 0" class="card p-12 text-center text-slate-500">
-      暂无文件
+      暂无文件，点击上方按钮上传
     </div>
 
-    <div v-else class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+    <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       <div
         v-for="media in mediaList"
         :key="media.id"
-        class="card overflow-hidden group"
+        class="card overflow-hidden group hover:shadow-lg transition-shadow"
       >
+        <!-- 图片预览 -->
         <div class="aspect-square bg-slate-100 dark:bg-slate-700 relative">
           <img
             v-if="media.mimetype.startsWith('image')"
@@ -97,17 +101,26 @@ function copyUrl(path: string) {
           <div v-else class="w-full h-full flex items-center justify-center text-4xl">
             📄
           </div>
-          <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-            <button @click="copyUrl(media.filepath)" class="p-2 bg-white rounded text-slate-800 text-sm">
-              复制
+          <!-- 悬停操作层 -->
+          <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+            <button
+              @click="copyUrl(media.filepath)"
+              class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-800 rounded-lg font-medium transition-colors"
+            >
+              复制链接
             </button>
-            <button @click="handleDelete(media.id)" class="p-2 bg-red-500 rounded text-white text-sm">
+            <button
+              @click="handleDelete(media.id)"
+              class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors"
+            >
               删除
             </button>
           </div>
         </div>
-        <div class="p-2 text-xs text-slate-500 truncate">
-          {{ media.filename }}
+        <!-- 文件信息 -->
+        <div class="p-3">
+          <p class="text-slate-800 dark:text-slate-200 text-sm font-medium truncate">{{ media.filename }}</p>
+          <p class="text-slate-400 text-xs mt-1">{{ formatSize(media.filesize) }}</p>
         </div>
       </div>
     </div>

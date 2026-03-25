@@ -116,6 +116,15 @@ async def get_post(slug: str, db: AsyncSession = Depends(get_db)):
     return PostDetailResponse.model_validate(post)
 
 
+@router.get("/detail/{post_id}", response_model=PostDetailResponse)
+async def get_post_by_id(post_id: int, db: AsyncSession = Depends(get_db)):
+    """通过 ID 获取文章详情（用于编辑）"""
+    post = await get_post_with_relations(db, post_id=post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="文章不存在")
+    return PostDetailResponse.model_validate(post)
+
+
 @router.post("", response_model=PostDetailResponse, status_code=201)
 async def create_post(
     post_data: PostCreate,

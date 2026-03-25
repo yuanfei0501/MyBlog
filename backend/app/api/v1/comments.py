@@ -5,26 +5,64 @@ from sqlalchemy.orm import selectinload
 
 from app.core import get_db
 from app.models import Comment, Post, CommentStatus
-from app.schemas import CommentCreate, CommentResponse, MessageResponse
+from app.schemas import CommentCreate, CommentResponse, MessageResponse, UserResponse
 from app.api.v1.auth import get_current_user, get_current_admin
 
 router = APIRouter(prefix="/comments", tags=["评论"])
 
 
-async def build_comment_tree(comments: list[Comment]) -> list[Comment]:
-    """构建评论树结构"""
-    comment_dict = {c.id: c for c in comments}
-    root_comments = []
+@router.get("/admin/all", response_model=list[CommentResponse])
+async def list_all_comments(
+    current_user=Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """获取所有评论（管理员）"""
+    result = await db.execute(
+        select(Comment)
+        .options(selectinload(Comment.user), selectinload(Comment.post))
+        .order_by(Comment.created_at.desc())
+    )
+    comments = result.scalars().all()
+    # 返回扁平列表，方便管理
+    return [
+        CommentResponse(
+            id=c.id,
+            content=c.content,
+            post_id=c.post_id,
+            post_title=c.post.title if c.post else None,
+            user=UserResponse.model_validate(c.user),
+            parent_id=c.parent_id,
+            status=c.status.value,
+            created_at=c.created_at,
+            replies=[]
+        )
+        for c in comments
+    ]
 
-    for comment in comments:
-        if comment.parent_id:
-            parent = comment_dict.get(comment.parent_id)
-            if parent:
-                if not hasattr(parent, "replies"):
-                    parent.replies = []
-                parent.replies.append(comment)
+
+def build_comment_response_tree(comments: list[Comment]) -> list[dict]:
+    """构建评论树结构，返回字典列表"""
+    # 先将所有评论转换为字典
+    comment_map = {}
+    for c in comments:
+        comment_map[c.id] = {
+            "id": c.id,
+            "content": c.content,
+            "post_id": c.post_id,
+            "user": UserResponse.model_validate(c.user).model_dump(),
+            "parent_id": c.parent_id,
+            "status": c.status.value,
+            "created_at": c.created_at,
+            "replies": []
+        }
+
+    # 构建树结构
+    root_comments = []
+    for c in comments:
+        if c.parent_id and c.parent_id in comment_map:
+            comment_map[c.parent_id]["replies"].append(comment_map[c.id])
         else:
-            root_comments.append(comment)
+            root_comments.append(comment_map[c.id])
 
     return root_comments
 
@@ -42,7 +80,7 @@ async def list_post_comments(
         .order_by(Comment.created_at.desc())
     )
     comments = result.scalars().all()
-    return [CommentResponse.model_validate(c) for c in build_comment_tree(list(comments))]
+    return build_comment_response_tree(list(comments))
 
 
 @router.post("", response_model=CommentResponse, status_code=201)
@@ -64,12 +102,16 @@ async def create_comment(
         if not parent or parent.post_id != data.post_id:
             raise HTTPException(status_code=400, detail="父评论不存在")
 
+    # 管理员评论直接通过，普通用户需要审核
+    from app.models import UserRole
+    comment_status = CommentStatus.APPROVED if current_user.role == UserRole.ADMIN else CommentStatus.PENDING
+
     comment = Comment(
         content=data.content,
         post_id=data.post_id,
         user_id=current_user.id,
         parent_id=data.parent_id,
-        status=CommentStatus.APPROVED,  # 直接通过，或改为 PENDING 需要审核
+        status=comment_status,
     )
     db.add(comment)
     await db.commit()
@@ -81,7 +123,19 @@ async def create_comment(
         .options(selectinload(Comment.user))
         .where(Comment.id == comment.id)
     )
-    return CommentResponse.model_validate(result.scalar_one())
+    new_comment = result.scalar_one()
+    # 手动构建响应数据，避免 SQLAlchemy 懒加载问题
+    from app.schemas import UserResponse
+    return CommentResponse(
+        id=new_comment.id,
+        content=new_comment.content,
+        post_id=new_comment.post_id,
+        user=UserResponse.model_validate(new_comment.user),
+        parent_id=new_comment.parent_id,
+        status=new_comment.status.value,
+        created_at=new_comment.created_at,
+        replies=[]
+    )
 
 
 @router.put("/{comment_id}/approve", response_model=MessageResponse)

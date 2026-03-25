@@ -33,7 +33,7 @@ function toggleMenu() {
   <div class="min-h-screen flex flex-col">
     <!-- 导航栏 -->
     <header class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800">
-      <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <!-- Logo -->
           <RouterLink to="/" class="flex items-center space-x-2">

@@ -47,6 +47,9 @@ class User(Base):
     posts: Mapped[List["Post"]] = relationship("Post", back_populates="author")
     comments: Mapped[List["Comment"]] = relationship("Comment", back_populates="user")
     media: Mapped[List["Media"]] = relationship("Media", back_populates="uploader")
+    # 关注关系
+    followers: Mapped[List["Follow"]] = relationship("Follow", foreign_keys="Follow.following_id", back_populates="following")
+    following: Mapped[List["Follow"]] = relationship("Follow", foreign_keys="Follow.follower_id", back_populates="follower")
 
 
 class Category(Base):
@@ -155,3 +158,17 @@ class Setting(Base):
     value: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class Follow(Base):
+    """关注模型"""
+    __tablename__ = "follows"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    follower_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    following_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    # 关系
+    follower: Mapped["User"] = relationship("User", foreign_keys=[follower_id], back_populates="following")
+    following: Mapped["User"] = relationship("User", foreign_keys=[following_id], back_populates="followers")

@@ -7,6 +7,7 @@ from .tags import router as tags_router
 from .comments import router as comments_router
 from .media import router as media_router
 from .admin import router as admin_router
+from .follows import router as follows_router
 
 api_router = APIRouter()
 
@@ -18,3 +19,4 @@ api_router.include_router(tags_router)
 api_router.include_router(comments_router)
 api_router.include_router(media_router)
 api_router.include_router(admin_router)
+api_router.include_router(follows_router)

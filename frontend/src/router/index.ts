@@ -47,7 +47,7 @@ const router = createRouter({
       name: 'Register',
       component: () => import('@/views/blog/Register.vue'),
     },
-    // 后台管理
+    // 后台管理 - 仅管理员可访问
     {
       path: '/admin',
       component: () => import('@/views/admin/Layout.vue'),
@@ -112,8 +112,11 @@ const router = createRouter({
 })
 
 // 路由守卫
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore()
+
+  // 等待用户信息加载完成
+  await userStore.init()
 
   if (to.meta.requiresAuth && !userStore.isLoggedIn) {
     next({ name: 'Login', query: { redirect: to.fullPath } })

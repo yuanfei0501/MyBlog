@@ -6,6 +6,7 @@ import { authApi } from '@/api'
 export const useUserStore = defineStore('user', () => {
   const user = ref<CurrentUser | null>(null)
   const token = ref<string | null>(localStorage.getItem('access_token'))
+  const loading = ref(false)
 
   const isLoggedIn = computed(() => !!user.value)
   const isAdmin = computed(() => user.value?.role === 'admin')
@@ -20,11 +21,14 @@ export const useUserStore = defineStore('user', () => {
 
   async function fetchUser() {
     if (!token.value) return
+    loading.value = true
     try {
       const { data } = await authApi.getMe()
       user.value = data
     } catch {
       logout()
+    } finally {
+      loading.value = false
     }
   }
 
@@ -35,15 +39,16 @@ export const useUserStore = defineStore('user', () => {
     localStorage.removeItem('refresh_token')
   }
 
-  function init() {
-    if (token.value) {
-      fetchUser()
+  async function init() {
+    if (token.value && !user.value) {
+      await fetchUser()
     }
   }
 
   return {
     user,
     token,
+    loading,
     isLoggedIn,
     isAdmin,
     login,

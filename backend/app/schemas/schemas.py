@@ -161,6 +161,7 @@ class CommentCreate(CommentBase):
 class CommentResponse(CommentBase):
     id: int
     post_id: int
+    post_title: Optional[str] = None
     user: UserResponse
     parent_id: Optional[int]
     status: str

@@ -1,5 +1,5 @@
 # 构建阶段
-FROM node:20-alpine as builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -18,8 +18,8 @@ RUN npm run build
 # 生产阶段
 FROM nginx:alpine
 
-# 多制构建产物
-COPY --from=builder/app/dist /usr/share/nginx/html
+# 复制构建产物
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 # 复制 nginx 配置
 COPY nginx.conf /etc/nginx/conf.d/default.conf

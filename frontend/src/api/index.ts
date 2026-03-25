@@ -95,6 +95,7 @@ export const postApi = {
     status?: string
   }) => api.get<PaginatedResponse<Post>>('/posts', { params }),
   get: (slug: string) => api.get<Post>(`/posts/${slug}`),
+  getById: (id: number) => api.get<Post>(`/posts/detail/${id}`),
   create: (data: PostCreate) => api.post<Post>('/posts', data),
   update: (id: number, data: Partial<PostCreate>) =>
     api.put<Post>(`/posts/${id}`, data),
@@ -122,6 +123,8 @@ export const tagApi = {
 export const commentApi = {
   listByPost: (postId: number) =>
     api.get<Comment[]>(`/comments/post/${postId}`),
+  listAll: () =>
+    api.get<Comment[]>('/comments/admin/all'),
   create: (data: CommentCreate) => api.post<Comment>('/comments', data),
   approve: (id: number) =>
     api.put<MessageResponse>(`/comments/${id}/approve`),
@@ -146,6 +149,17 @@ export const mediaApi = {
 // 后台管理 API
 export const adminApi = {
   getDashboard: () => api.get<DashboardData>('/admin/dashboard'),
+}
+
+// 关注 API
+export const followApi = {
+  follow: (userId: number) => api.post<MessageResponse>(`/follows/${userId}`),
+  unfollow: (userId: number) => api.delete<MessageResponse>(`/follows/${userId}`),
+  getStatus: (userId: number) => api.get<{ is_following: boolean }>(`/follows/status/${userId}`),
+  getCount: (userId: number) => api.get<{ followers: number; following: number }>(`/follows/count/${userId}`),
+  getFollowers: (userId: number) => api.get<User[]>(`/follows/followers/${userId}`),
+  getFollowing: (userId: number) => api.get<User[]>(`/follows/following/${userId}`),
+  getStats: (userId: number) => api.get<{ posts: number; followers: number; following: number }>(`/follows/stats/${userId}`),
 }
 
 export default api

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # 前端服务
   frontend:
@@ -18,10 +16,10 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://${DB_USER:-blog}:${DB_PASSWORD:-blog123}@db:5432/${DB_NAME:-blog}
+      - DATABASE_URL=postgresql+asyncpg://blog:blog123@db:5432/blog
       - REDIS_URL=redis://redis:6379/0
-      - SECRET_KEY=${SECRET_KEY:-your-super-secret-key-change-in-production}
-      - DEBUG=false
+      - SECRET_KEY=a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6
+      - DEBUG=true
     volumes:
       - uploads-data:/app/uploads
     depends_on:
@@ -32,26 +30,21 @@ services:
     networks:
       - blog-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   # 数据库服务
   db:
     image: postgres:15-alpine
     environment:
-      - POSTGRES_DB=${DB_NAME:-blog}
-      - POSTGRES_USER=${DB_USER:-blog}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-blog123}
+      - POSTGRES_DB=blog
+      - POSTGRES_USER=blog
+      - POSTGRES_PASSWORD=blog123
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - blog-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-blog} -d ${DB_NAME:-blog}"]
+      test: ["CMD-SHELL", "pg_isready -U blog -d blog"]
       interval: 10s
       timeout: 5s
       retries: 5
